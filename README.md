@@ -33,6 +33,10 @@ In another terminal:
 ngrok http 3000
 ```
 
+## Deploy on Render
+
+This repository includes `render.yaml` for a Node web service. In Render, select **New + → Blueprint**, connect the GitHub repository, and select this repository. Render uses `mock-server` as the root directory, runs `npm ci`, then `npm start`, and checks `/health`. After deployment, use `https://YOUR-RENDER-SERVICE.onrender.com/webhook` as the Vapi Server URL.
+
 Confirm it locally with:
 
 ```powershell
