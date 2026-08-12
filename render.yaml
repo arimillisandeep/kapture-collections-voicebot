@@ -2,6 +2,7 @@ services:
   - type: web
     name: kapture-collections-voicebot
     runtime: node
+    plan: free
     rootDir: mock-server
     buildCommand: npm ci
     startCommand: npm start
