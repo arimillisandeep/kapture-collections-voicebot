@@ -1,0 +1,8 @@
+{
+  "name": "Rahul Sharma",
+  "accountId": "ACC-88392",
+  "loan": "Personal Loan",
+  "overdueEmi": 8499,
+  "daysPastDue": 12,
+  "verificationCodes": ["1234", "1995"]
+}

@@ -1,0 +1,3 @@
+mock-server/node_modules/
+mock-server/.env
+npm-debug.log*
