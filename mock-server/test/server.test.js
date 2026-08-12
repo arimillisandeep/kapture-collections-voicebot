@@ -30,6 +30,13 @@ test('health endpoint is available', async () => {
   assert.deepEqual(await response.json(), { status: 'ok', service: 'kapture-vapi-mock-server' });
 });
 
+test('root endpoint documents the deployed webhook service', async () => {
+  const response = await fetch(`${baseUrl}/`);
+  const body = await response.json();
+  assert.equal(body.status, 'online');
+  assert.equal(body.vapiWebhook, '/webhook');
+});
+
 test('non-tool Vapi messages receive a safe HTTP 200 acknowledgement', async () => {
   const response = await fetch(`${baseUrl}/webhook`, {
     method: 'POST', headers: { 'content-type': 'application/json' },
