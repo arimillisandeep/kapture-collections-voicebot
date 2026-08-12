@@ -30,11 +30,12 @@ test('health endpoint is available', async () => {
   assert.deepEqual(await response.json(), { status: 'ok', service: 'kapture-vapi-mock-server' });
 });
 
-test('root endpoint documents the deployed webhook service', async () => {
+test('root endpoint serves the Maya visual dashboard', async () => {
   const response = await fetch(`${baseUrl}/`);
-  const body = await response.json();
-  assert.equal(body.status, 'online');
-  assert.equal(body.vapiWebhook, '/webhook');
+  const body = await response.text();
+  assert.match(response.headers.get('content-type'), /text\/html/);
+  assert.match(body, /Maya Collections Voicebot/);
+  assert.match(body, /POST \/webhook/);
 });
 
 test('non-tool Vapi messages receive a safe HTTP 200 acknowledgement', async () => {

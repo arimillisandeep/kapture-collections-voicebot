@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Maya | Kapture Finance Voicebot</title>
+  <style>
+    :root { color-scheme: dark; --ink:#e9efff; --muted:#aab9d8; --card:#111a33; --line:#2a3a65; --accent:#7c9cff; --green:#48d597; }
+    * { box-sizing:border-box; } body { margin:0; font-family:Inter,ui-sans-serif,system-ui,sans-serif; color:var(--ink); background:radial-gradient(circle at 10% 0,#1d315d 0,transparent 36%),#080d1d; }
+    main { width:min(900px,calc(100% - 40px)); margin:0 auto; padding:72px 0; }
+    .eyebrow { color:var(--accent); text-transform:uppercase; font-size:.78rem; font-weight:700; letter-spacing:.12em; } h1 { font-size:clamp(2.3rem,6vw,4.5rem); line-height:1; margin:14px 0; } p { color:var(--muted); line-height:1.65; max-width:650px; }
+    .status { display:inline-flex; align-items:center; gap:9px; padding:8px 12px; border:1px solid var(--line); border-radius:99px; color:#bbf6d7; background:#103025; font-size:.9rem; } .dot { width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin:40px 0; } .card { border:1px solid var(--line); background:linear-gradient(145deg,#131f3c,#0f162c); border-radius:16px; padding:20px; } .card h2 { margin:0 0 8px;font-size:1.05rem; } .card p { margin:0 0 15px;font-size:.9rem; } a { color:#b8c8ff; text-decoration:none; font-weight:600; } a:hover { color:white; }
+    footer { border-top:1px solid var(--line); padding-top:24px; color:var(--muted); font-size:.9rem; } code { color:#d7e0ff; }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="status"><span class="dot"></span> Service online</span>
+    <p class="eyebrow">Kapture Finance</p>
+    <h1>Maya Collections Voicebot</h1>
+    <p>A compliant Voice AI backend for Vapi. Maya verifies identity before any account disclosure, records payment commitments, sends mock payment links, and safely handles DNC and escalation requests.</p>
+    <section class="grid">
+      <article class="card"><h2>System health</h2><p>Machine-readable service status for deployment monitoring.</p><a href="/health">Open health check →</a></article>
+      <article class="card"><h2>Vapi webhook</h2><p>Server-side endpoint for authenticated Vapi tool calls.</p><code>POST /webhook</code></article>
+      <article class="card"><h2>Security gate</h2><p>Debt details remain inaccessible until tool-confirmed verification succeeds.</p><a href="https://github.com/arimillisandeep/kapture-collections-voicebot">View source →</a></article>
+    </section>
+    <footer>Built for the Kapture AI Delivery Intern take-home assignment.</footer>
+  </main>
+</body>
+</html>

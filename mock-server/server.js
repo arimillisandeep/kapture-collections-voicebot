@@ -131,13 +131,7 @@ app.post('/webhook', (req, res) => {
   res.json({ results });
 });
 app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'kapture-vapi-mock-server' }));
-app.get('/', (_req, res) => res.json({
-  service: 'Kapture Finance Maya Collections Voicebot',
-  status: 'online',
-  health: '/health',
-  vapiWebhook: '/webhook',
-  methods: { health: 'GET', webhook: 'POST' }
-}));
+app.get('/', (_req, res) => res.sendFile(`${__dirname}/public/index.html`));
 if (require.main === module) {
   app.listen(PORT, () => log('server_started', { port: PORT }));
 }
