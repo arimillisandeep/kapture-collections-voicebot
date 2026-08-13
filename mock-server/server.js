@@ -132,6 +132,66 @@ app.post('/webhook', (req, res) => {
 });
 app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'kapture-vapi-mock-server' }));
 app.get('/', (_req, res) => res.sendFile(`${__dirname}/public/index.html`));
+app.post('/demo/message', (req, res) => {
+  const callId = String(req.body?.callId || `web-${crypto.randomUUID()}`);
+  const message = String(req.body?.message || '').trim();
+  const call = getCall(callId);
+  const lower = message.toLowerCase();
+  let reply;
+  let state = call.state;
+
+  if (!message) return res.status(400).json({ error: 'message is required.' });
+  if (call.state === STATES.CALL_ENDED) return res.json({ callId, state: call.state, reply: 'This conversation has ended. Please select Start new call to begin again.' });
+
+  if (/do not call|don'?t call|dnc|stop calling/.test(lower)) {
+    handlers.mark_disposition({ account_id: customer.accountId, status: 'DO_NOT_CALL', notes: 'Web demo DNC request.', _callId: callId }, call);
+    reply = 'Understood. I have recorded your do-not-call request. Thank you.';
+  } else if (/wrong (person|number)|not rahul|galat number/.test(lower)) {
+    handlers.mark_disposition({ account_id: customer.accountId, status: 'WRONG_PERSON', notes: 'Web demo wrong person.', _callId: callId }, call);
+    reply = 'I apologize for the inconvenience. I will update the record. Goodbye.';
+  } else if (/already paid|already payment|paid already/.test(lower)) {
+    handlers.mark_disposition({ account_id: customer.accountId, status: 'ALREADY_PAID', notes: 'Customer reported payment in web demo.', _callId: callId }, call);
+    reply = 'Thank you for letting me know. We will allow time for the payment to reflect. Goodbye.';
+  } else if (/dispute|not my (debt|loan)|not mine/.test(lower)) {
+    handlers.escalate_to_agent({ account_id: customer.accountId, reason: 'DISPUTE', _callId: callId }, call);
+    handlers.mark_disposition({ account_id: customer.accountId, status: 'DISPUTED', notes: 'Web demo dispute.', _callId: callId }, call);
+    reply = 'I understand. I have escalated this to our resolution team. Goodbye.';
+  } else if (/hardship|cannot pay|can\'t pay|financial problem/.test(lower)) {
+    handlers.escalate_to_agent({ account_id: customer.accountId, reason: 'HARDSHIP_REQUEST', _callId: callId }, call);
+    handlers.mark_disposition({ account_id: customer.accountId, status: 'HARDSHIP_ESCALATED', notes: 'Web demo hardship.', _callId: callId }, call);
+    reply = 'I understand this may be difficult. I have requested a human agent follow-up. Goodbye.';
+  } else if (!requireAuth(call)) {
+    const code = (message.match(/\b(\d{4})\b/) || [])[1];
+    if (code) {
+      const verification = handlers.verify_customer({ account_id: customer.accountId, verification_code: code, _callId: callId }, call);
+      if (!verification.verified) reply = verification.retryAllowed === false ? 'Verification could not be completed. I will end this call safely. Thank you.' : 'I could not verify that code. Please try once more with your last four PAN digits or year of birth.';
+      else {
+        handlers.get_account_details({ account_id: customer.accountId, _callId: callId }, call);
+        reply = 'Thank you for verifying, Rahul. Your Kapture Finance personal loan has an overdue EMI of INR 8,499, 12 days past due. When can you make the payment?';
+      }
+    } else {
+      transition(call, STATES.AUTH_PENDING, callId, 'web_demo_identity');
+      reply = 'For security purposes, please confirm the last 4 digits of your PAN or your year of birth.';
+    }
+  } else if (/pay|payment|bhar/.test(lower)) {
+    const amount = Number((message.match(/\b(\d{3,6})\b/) || [])[1] || customer.overdueEmi);
+    const date = (message.match(/\b\d{4}-\d{2}-\d{2}\b/) || [])[0];
+    if (!date) reply = 'Thank you. Please confirm the exact payment date in YYYY-MM-DD format.';
+    else {
+      const ptp = handlers.log_promise_to_pay({ account_id: customer.accountId, amount, ptp_date: date, _callId: callId }, call);
+      if (!ptp.ok) reply = ptp.error;
+      else {
+        handlers.send_payment_link({ account_id: customer.accountId, channel: 'SMS', _callId: callId }, call);
+        handlers.mark_disposition({ account_id: customer.accountId, status: 'PTP_AGREED', notes: 'Web demo PTP.', _callId: callId }, call);
+        reply = `Thank you. I recorded your payment promise of INR ${amount} for ${date} and queued an SMS payment link. Goodbye.`;
+      }
+    }
+  } else {
+    reply = 'I can help record a payment promise, an already-paid update, a dispute, hardship, or a do-not-call request.';
+  }
+  state = call.state;
+  res.json({ callId, state, reply });
+});
 if (require.main === module) {
   app.listen(PORT, () => log('server_started', { port: PORT }));
 }

@@ -36,6 +36,14 @@ test('root endpoint serves the Maya visual dashboard', async () => {
   assert.match(response.headers.get('content-type'), /text\/html/);
   assert.match(body, /Maya Collections Voicebot/);
   assert.match(body, /POST \/webhook/);
+  assert.match(body, /Talk to Maya/);
+});
+
+test('web demo keeps debt disclosure behind verification', async () => {
+  const response = await fetch(`${baseUrl}/demo/message`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ callId: 'web-guard', message: 'How much do I owe?' }) });
+  const body = await response.json();
+  assert.equal(body.state, STATES.AUTH_PENDING);
+  assert.equal(body.reply.includes('8,499'), false);
 });
 
 test('non-tool Vapi messages receive a safe HTTP 200 acknowledgement', async () => {
